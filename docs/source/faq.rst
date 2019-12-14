@@ -4,9 +4,12 @@ FAQ: frequently asked questions
 How do I get the data?
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Check ``learner.data``.
 
 How do I learn more than one value per point?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the `adaptive.DataSaver`.
 
 
 My runner failed, how do I get the error message?
@@ -17,8 +20,8 @@ I get ``concurrent.futures.process.BrokenProcessPool``: A process in the process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-What is the difference with FEM / adaptive gritting methods? see this
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What is the difference with FEM?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 What is the difference with Bayesian optimization?
