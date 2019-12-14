@@ -25,6 +25,10 @@ What is the difference with Bayesian optimization?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+What is the difference with adaptive meshing in CFD or computer graphics?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 How to use Adaptive with MATLAB?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
