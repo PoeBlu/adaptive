@@ -1,0 +1,32 @@
+FAQ: frequently asked questions
+-------------------------------
+
+How do I get the data?
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+How do I learn more than one value per point?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+My runner failed, how do I get the error message?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+I get ``concurrent.futures.process.BrokenProcessPool``: A process in the process pool was terminated abruptly while the future was running or pending. what does it mean?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+What is the difference with FEM / adaptive gritting methods? see this
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+What is the difference with Bayesian optimization?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+How to use Adaptive with MATLAB?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Missing a question that you think belongs here? Let us `know <https://github.com/python-adaptive/adaptive/issues/new>`_.
