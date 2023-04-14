@@ -244,9 +244,7 @@ class BaseRunner(metaclass=abc.ABCMeta):
             fut.start_time = start_time
             self.pending_points[fut] = x
 
-        # Collect and results and add them to the learner
-        futures = list(self.pending_points.keys())
-        return futures
+        return list(self.pending_points.keys())
 
     def _remove_unfinished(self):
         # remove points with 'None' values from the learner
@@ -262,7 +260,7 @@ class BaseRunner(metaclass=abc.ABCMeta):
             # XXX: temporary set wait=True for Python 3.7
             # see https://github.com/python-adaptive/adaptive/issues/156
             # and https://github.com/python-adaptive/adaptive/pull/164
-            self.executor.shutdown(wait=True if sys.version_info >= (3, 7) else False)
+            self.executor.shutdown(wait=sys.version_info >= (3, 7))
         self.end_time = time.time()
 
     @property
@@ -388,8 +386,7 @@ class BlockingRunner(BaseRunner):
                 done, _ = concurrent.wait(futures, return_when=first_completed)
                 self._process_futures(done)
         finally:
-            remaining = self._remove_unfinished()
-            if remaining:
+            if remaining := self._remove_unfinished():
                 concurrent.wait(remaining)
             self._cleanup()
 
@@ -618,8 +615,7 @@ class AsyncRunner(BaseRunner):
                 )
                 self._process_futures(done)
         finally:
-            remaining = self._remove_unfinished()
-            if remaining:
+            if remaining := self._remove_unfinished():
                 await asyncio.wait(remaining)
             self._cleanup()
 
@@ -799,7 +795,7 @@ def _get_ncores(ex):
     elif isinstance(ex, SequentialExecutor):
         return 1
     elif with_distributed and isinstance(ex, distributed.cfexecutor.ClientExecutor):
-        return sum(n for n in ex._client.ncores().values())
+        return sum(ex._client.ncores().values())
     elif with_mpi4py and isinstance(ex, mpi4py.futures.MPIPoolExecutor):
         ex.bootup()  # wait until all workers are up and running
         return ex._pool.size  # not public API!

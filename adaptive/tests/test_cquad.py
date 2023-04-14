@@ -36,7 +36,7 @@ def equal_ival(ival, other, *, verbose=False):
         b = getattr(other, s)
         is_equal = np.allclose(a, b, rtol=0, atol=eps, equal_nan=True)
         if verbose and not is_equal:
-            print("ival.{} - other.{} = {}".format(s, s, a - b))
+            print(f"ival.{s} - other.{s} = {a - b}")
         same_slots.append(is_equal)
 
     return all(same_slots)
@@ -46,7 +46,7 @@ def equal_ivals(ivals, other, *, verbose=False):
     """Note: `other` is a list of ivals."""
     if len(ivals) != len(other):
         if verbose:
-            print("len(ivals)={} != len(other)={}".format(len(ivals), len(other)))
+            print(f"len(ivals)={len(ivals)} != len(other)={len(other)}")
         return False
 
     ivals = [sorted(i, key=attrgetter("a")) for i in [ivals, other]]
@@ -138,7 +138,7 @@ def test_adding_points_and_skip_one_point():
         if x != skip_x:
             learner.tell(x, learner.function(x))
 
-    for i in range(1000):
+    for _ in range(1000):
         xs, _ = learner.ask(1)
         for x in xs:
             if x != skip_x:
@@ -150,7 +150,7 @@ def test_adding_points_and_skip_one_point():
     # Create a learner with the same number of points, which should
     # give an identical igral value.
     learner2 = IntegratorLearner(f24, bounds=(0, 3), tol=1e-10)
-    for i in range(1017):
+    for _ in range(1017):
         xs, _ = learner2.ask(1)
         for x in xs:
             learner2.tell(x, learner2.function(x))

@@ -22,9 +22,7 @@ from adaptive.utils import cache_latest, restore
 
 
 def to_list(inp):
-    if isinstance(inp, Iterable):
-        return list(inp)
-    return [inp]
+    return list(inp) if isinstance(inp, Iterable) else [inp]
 
 
 def volume(simplex, ys=None):
@@ -34,8 +32,7 @@ def volume(simplex, ys=None):
 
     # See https://www.jstor.org/stable/2315353
     dim = len(simplex) - 1
-    vol = np.abs(fast_det(matrix)) / np.math.factorial(dim)
-    return vol
+    return np.abs(fast_det(matrix)) / np.math.factorial(dim)
 
 
 def orientation(simplex):
@@ -142,7 +139,7 @@ def triangle_loss(simplex, values, value_scale, neighbors, neighbor_values):
 
     neighbors = [n for n in neighbors if n is not None]
     neighbor_values = [v for v in neighbor_values if v is not None]
-    if len(neighbors) == 0:
+    if not neighbors:
         return 0
 
     s = [(*x, *to_list(y)) for x, y in zip(simplex, values)]
@@ -324,12 +321,12 @@ class LearnerND(BaseLearner):
 
         self.function = func
         self._tri = None
-        self._losses = dict()
+        self._losses = {}
 
-        self._pending_to_simplex = dict()  # vertex → simplex
+        self._pending_to_simplex = {}
 
         # triangulation of the pending points inside a specific simplex
-        self._subtriangulations = dict()  # simplex → triangulation
+        self._subtriangulations = {}
 
         # scale to unit hypercube
         # for the input
@@ -449,11 +446,10 @@ class LearnerND(BaseLearner):
         """Check whether a point is inside the bounds."""
         if hasattr(self, "_interior"):
             return self._interior.find_simplex(point, tol=1e-8) >= 0
-        else:
-            eps = 1e-8
-            return all(
-                (mn - eps) <= p <= (mx + eps) for p, (mn, mx) in zip(point, self._bbox)
-            )
+        eps = 1e-8
+        return all(
+            (mn - eps) <= p <= (mx + eps) for p, (mn, mx) in zip(point, self._bbox)
+        )
 
     def tell_pending(self, point, *, simplex=None):
         point = tuple(point)
@@ -509,10 +505,9 @@ class LearnerND(BaseLearner):
 
     def ask(self, n, tell_pending=True):
         """Chose points for learners."""
-        if not tell_pending:
-            with restore(self):
-                return self._ask_and_tell_pending(n)
-        else:
+        if tell_pending:
+            return self._ask_and_tell_pending(n)
+        with restore(self):
             return self._ask_and_tell_pending(n)
 
     def _ask_bound_point(self):
@@ -756,14 +751,14 @@ class LearnerND(BaseLearner):
     @cache_latest
     def loss(self, real=True):
         # XXX: compute pending loss if real == False
-        losses = self._losses if self.tri is not None else dict()
+        losses = self._losses if self.tri is not None else {}
         return max(losses.values()) if losses else float("inf")
 
     def remove_unfinished(self):
         # XXX: implement this method
         self.pending_points = set()
-        self._subtriangulations = dict()
-        self._pending_to_simplex = dict()
+        self._subtriangulations = {}
+        self._pending_to_simplex = {}
 
     ##########################
     # Plotting related stuff #
@@ -1048,7 +1043,7 @@ class LearnerND(BaseLearner):
             elif get_line and len(plane_or_line) == 2:
                 faces_or_lines.append(plane_or_line)
 
-        if len(faces_or_lines) == 0:
+        if not faces_or_lines:
             r_min = min(self.data[v] for v in self.tri.vertices)
             r_max = max(self.data[v] for v in self.tri.vertices)
 
@@ -1082,11 +1077,7 @@ class LearnerND(BaseLearner):
             `holoviews.element.Path`.
         """
         hv = ensure_holoviews()
-        if n == -1:
-            plot = hv.Path([])
-        else:
-            plot = self.plot(n=n, tri_alpha=tri_alpha)
-
+        plot = hv.Path([]) if n == -1 else self.plot(n=n, tri_alpha=tri_alpha)
         if isinstance(level, Iterable):
             for l in level:
                 plot = plot * self.plot_isoline(level=l, n=-1)

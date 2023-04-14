@@ -42,8 +42,7 @@ def cache_latest(f):
 
 def save(fname, data, compress=True):
     fname = os.path.expanduser(fname)
-    dirname = os.path.dirname(fname)
-    if dirname:
+    if dirname := os.path.dirname(fname):
         os.makedirs(dirname, exist_ok=True)
 
     blob = pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)

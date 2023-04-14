@@ -92,7 +92,7 @@ def test_loss_interpolation():
 
     learner.tell(-1, 0)
     learner.tell(1, 0)
-    for i in range(100):
+    for _ in range(100):
         # Add a 100 points with either None or 0
         if random.random() < 0.9:
             learner.tell_pending(random.uniform(-1, 1))
@@ -183,14 +183,12 @@ def test_small_deviations():
     # parallel execution
     stash = []
 
-    for i in range(100):
+    for _ in range(100):
         xs, _ = learner.ask(10)
 
         # Save 5 random points out of `xs` for later
         random.shuffle(xs)
-        for _ in range(5):
-            stash.append(xs.pop())
-
+        stash.extend(xs.pop() for _ in range(5))
         for x in xs:
             learner.tell(x, learner.function(x))
 
@@ -381,9 +379,7 @@ def test_NaN_loss():
     # see https://github.com/python-adaptive/adaptive/issues/145
     def f(x):
         a = 0.01
-        if random.random() < 0.2:
-            return np.NaN
-        return x + a ** 2 / (a ** 2 + x ** 2)
+        return np.NaN if random.random() < 0.2 else x + a ** 2 / (a ** 2 + x ** 2)
 
     learner = Learner1D(f, bounds=(-1, 1))
     simple(learner, lambda l: l.npoints > 100)

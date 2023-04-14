@@ -147,8 +147,9 @@ b_def = calc_bdef(n)
 
 def calc_V(xi, n):
     V = [np.ones(xi.shape), xi.copy()]
-    for i in range(2, n):
-        V.append((2 * i - 1) / i * xi * V[-1] - (i - 1) / i * V[-2])
+    V.extend(
+        (2 * i - 1) / i * xi * V[-1] - (i - 1) / i * V[-2] for i in range(2, n)
+    )
     for i in range(n):
         V[i] *= np.sqrt(i + 0.5)
     return np.array(V).T
@@ -292,7 +293,7 @@ class _Interval:
         self.depth = depth = self.depth + 1
         points = self.points()
         fx = np.empty(n[depth])
-        fx[0 : n[depth] : 2] = self.fx
+        fx[:n[depth]:2] = self.fx
         fx[1 : n[depth] - 1 : 2] = f(points[1 : n[depth] - 1 : 2])
         self.fx = fx
         split = self.calc_igral_and_err(self.c) > hint * norm(self.c)
@@ -419,10 +420,7 @@ def f24(x):
 
 
 def f21(x):
-    y = 0
-    for i in range(1, 4):
-        y += 1 / np.cosh(20 ** i * (x - 2 * i / 10))
-    return y
+    return sum(1 / np.cosh(20 ** i * (x - 2 * i / 10)) for i in range(1, 4))
 
 
 def f63(x, alpha, beta):

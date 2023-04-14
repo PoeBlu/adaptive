@@ -442,7 +442,7 @@ def test_learner_performance_is_invariant_under_scaling(
         # Because the LearnerND is slow
         npoints //= 10
 
-    for n in range(npoints):
+    for _ in range(npoints):
         cxs, _ = control.ask(1)
         xs, _ = learner.ask(1)
         control.tell_many(cxs, [control.function(x) for x in cxs])
@@ -468,7 +468,7 @@ def test_balancing_learner(learner_type, f, learner_kwargs):
     """Test if the BalancingLearner works with the different types of learners."""
     learners = [
         learner_type(generate_random_parametrization(f), **learner_kwargs)
-        for i in range(4)
+        for _ in range(4)
     ]
 
     learner = BalancingLearner(learners)
@@ -476,16 +476,14 @@ def test_balancing_learner(learner_type, f, learner_kwargs):
     # Emulate parallel execution
     stash = []
 
-    for i in range(100):
+    for _ in range(100):
         n = random.randint(1, 10)
         m = random.randint(0, n)
         xs, _ = learner.ask(n, tell_pending=False)
 
         # Save 'm' random points out of `xs` for later
         random.shuffle(xs)
-        for _ in range(m):
-            stash.append(xs.pop())
-
+        stash.extend(xs.pop() for _ in range(m))
         for x in xs:
             learner.tell(x, learner.function(x))
 
@@ -555,7 +553,7 @@ def test_saving_of_balancing_learner(learner_type, f, learner_kwargs):
     folder = tempfile.mkdtemp()
 
     def fname(learner):
-        return folder + "test"
+        return f"{folder}test"
 
     try:
         learner.save(fname=fname)

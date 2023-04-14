@@ -95,10 +95,7 @@ class AverageLearner(BaseLearner):
         if n < 2:
             return np.inf
         numerator = self.sum_f_sq - n * self.mean ** 2
-        if numerator < 0:
-            # in this case the numerator ~ -1e-15
-            return 0
-        return sqrt(numerator / (n - 1))
+        return 0 if numerator < 0 else sqrt(numerator / (n - 1))
 
     @cache_latest
     def loss(self, real=True, *, n=None):
@@ -115,10 +112,7 @@ class AverageLearner(BaseLearner):
 
     def _loss_improvement(self, n):
         loss = self.loss()
-        if np.isfinite(loss):
-            return loss - self.loss(n=self.npoints + n)
-        else:
-            return np.inf
+        return loss - self.loss(n=self.npoints + n) if np.isfinite(loss) else np.inf
 
     def remove_unfinished(self):
         """Remove uncomputed data from the learner."""

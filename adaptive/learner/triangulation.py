@@ -176,9 +176,7 @@ def orientation(face, origin):
     """
     vectors = np.array(face)
     sign, logdet = np.linalg.slogdet(vectors - origin)
-    if logdet < -50:  # assume it to be zero when it's close to zero
-        return 0
-    return sign
+    return 0 if logdet < -50 else sign
 
 
 def is_iterable_and_sized(obj):
@@ -272,7 +270,7 @@ class Triangulation:
         coords = list(coords)
         if not all(is_iterable_and_sized(coord) for coord in coords):
             raise TypeError("Please provide a 2-dimensional list of points")
-        if len(coords) == 0:
+        if not coords:
             raise ValueError("Please provide at least one simplex")
             # raise now because otherwise the next line will raise a less
 
@@ -321,9 +319,7 @@ class Triangulation:
         return [self.get_vertex(i) for i in indices]
 
     def get_vertex(self, index):
-        if index is None:
-            return None
-        return self.vertices[index]
+        return None if index is None else self.vertices[index]
 
     def get_reduced_simplex(self, point, simplex, eps=1e-8) -> list:
         """Check whether vertex lies within a simplex.
@@ -360,10 +356,14 @@ class Triangulation:
         Return indices of the simplex containing the point.
         Empty tuple means the point is outside the triangulation
         """
-        for simplex in self.simplices:
-            if self.point_in_simplex(point, simplex):
-                return simplex
-        return ()
+        return next(
+            (
+                simplex
+                for simplex in self.simplices
+                if self.point_in_simplex(point, simplex)
+            ),
+            (),
+        )
 
     @property
     def dim(self):
@@ -396,7 +396,7 @@ class Triangulation:
 
     def _extend_hull(self, new_vertex, eps=1e-8):
         # count multiplicities in order to get all hull faces
-        multiplicities = Counter(face for face in self.faces())
+        multiplicities = Counter(iter(self.faces()))
         hull_faces = [face for face, count in multiplicities.items() if count == 1]
 
         # compute the center of the convex hull, this center lies in the hull
@@ -424,7 +424,7 @@ class Triangulation:
                     self.add_simplex(simplex)
                     new_simplices.add(simplex)
 
-        if len(new_simplices) == 0:
+        if not new_simplices:
             # We tried to add an internal point, revert and raise.
             for tri in self.vertex_to_simplices[pt_index]:
                 self.simplices.remove(tri)
@@ -511,7 +511,7 @@ class Triangulation:
 
         faces = list(self.faces(simplices=bad_triangles))
 
-        multiplicities = Counter(face for face in faces)
+        multiplicities = Counter(iter(faces))
         hole_faces = [face for face in faces if multiplicities[face] < 2]
 
         for face in hole_faces:
@@ -571,13 +571,12 @@ class Triangulation:
             added = added_simplices | (temporary_simplices - deleted_simplices)
             return deleted, added
         else:
-            reduced_simplex = self.get_reduced_simplex(point, simplex)
-            if not reduced_simplex:
-                self.vertex_to_simplices.pop()  # revert adding vertex
-                raise ValueError("Point lies outside of the specified simplex.")
-            else:
+            if reduced_simplex := self.get_reduced_simplex(point, simplex):
                 simplex = reduced_simplex
 
+            else:
+                self.vertex_to_simplices.pop()  # revert adding vertex
+                raise ValueError("Point lies outside of the specified simplex.")
         if len(simplex) == 1:
             self.vertex_to_simplices.pop()  # revert adding vertex
             raise ValueError("Point already in triangulation.")
@@ -600,10 +599,10 @@ class Triangulation:
         for vertex in range(len(self.vertices)):
             if any(vertex not in tri for tri in self.vertex_to_simplices[vertex]):
                 return False
-        for simplex in self.simplices:
-            if any(simplex not in self.vertex_to_simplices[pt] for pt in simplex):
-                return False
-        return True
+        return not any(
+            any(simplex not in self.vertex_to_simplices[pt] for pt in simplex)
+            for simplex in self.simplices
+        )
 
     def vertex_invariant(self, vertex):
         """Simplices originating from a vertex don't overlap."""
@@ -662,8 +661,9 @@ class Triangulation:
                 " appears in more than 2 simplices."
             )
 
-        hull = {point for face, count in counts.items() if count == 1 for point in face}
-        return hull
+        return {
+            point for face, count in counts.items() if count == 1 for point in face
+        }
 
     def convex_invariant(self, vertex):
         """Hull is convex."""

@@ -41,7 +41,7 @@ def _check_simplices_are_valid(t):
 def _check_faces_are_valid(t):
     """Check that a 'dim-1'-D face is shared by no more than 2 simplices."""
     counts = Counter(t.faces())
-    assert not any(i > 2 for i in counts.values()), counts
+    assert all(i <= 2 for i in counts.values()), counts
 
 
 def _check_hull_is_valid(t):

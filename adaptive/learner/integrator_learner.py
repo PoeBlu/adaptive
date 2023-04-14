@@ -446,10 +446,9 @@ class IntegratorLearner(BaseLearner):
 
     def ask(self, n, tell_pending=True):
         """Choose points for learners."""
-        if not tell_pending:
-            with restore(self):
-                return self._ask_and_tell_pending(n)
-        else:
+        if tell_pending:
+            return self._ask_and_tell_pending(n)
+        with restore(self):
             return self._ask_and_tell_pending(n)
 
     def _ask_and_tell_pending(self, n):

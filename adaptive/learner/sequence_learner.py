@@ -94,11 +94,12 @@ class SequenceLearner(BaseLearner):
             self.tell_many(points, values)
 
     def loss(self, real=True):
-        if not (self._to_do_indices or self.pending_points):
-            return 0
-        else:
+        if self._to_do_indices or self.pending_points:
             npoints = self.npoints + (0 if real else len(self.pending_points))
             return (self._ntotal - npoints) / self._ntotal
+
+        else:
+            return 0
 
     def remove_unfinished(self):
         for i in self.pending_points:

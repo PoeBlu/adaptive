@@ -30,8 +30,7 @@ def uniform_loss(xs, ys):
     ...                              loss_per_interval=uniform_sampling_1d)
     >>>
     """
-    dx = xs[1] - xs[0]
-    return dx
+    return xs[1] - xs[0]
 
 
 @uses_nth_neighbors(0)
@@ -64,7 +63,7 @@ def triangle_loss(xs, ys):
         pts = [(x, *y) for x, y in zip(xs, ys)]
         vol = simplex_volume_in_embedding
     else:
-        pts = [(x, y) for x, y in zip(xs, ys)]
+        pts = list(zip(xs, ys))
         vol = volume
     return sum(vol(pts[i : i + 3]) for i in range(N)) / N
 
@@ -95,9 +94,8 @@ def linspace(x_left, x_right, n):
     if n == 1:
         # This is just an optimization
         return []
-    else:
-        step = (x_right - x_left) / n
-        return [x_left + step * i for i in range(1, n)]
+    step = (x_right - x_left) / n
+    return [x_left + step * i for i in range(1, n)]
 
 
 def _get_neighbors_from_list(xs):
@@ -213,15 +211,14 @@ class Learner1D(BaseLearner):
         As long as no data is known `vdim = 1`.
         """
         if self._vdim is None:
-            if self.data:
-                y = next(iter(self.data.values()))
-                try:
-                    self._vdim = len(np.squeeze(y))
-                except TypeError:
-                    # Means we are taking the length of a float
-                    self._vdim = 1
-            else:
+            if not self.data:
                 return 1
+            y = next(iter(self.data.values()))
+            try:
+                self._vdim = len(np.squeeze(y))
+            except TypeError:
+                # Means we are taking the length of a float
+                self._vdim = 1
         return self._vdim
 
     @property
@@ -238,9 +235,7 @@ class Learner1D(BaseLearner):
         return max_loss
 
     def _scale_x(self, x):
-        if x is None:
-            return None
-        return x / self._scale[0]
+        return None if x is None else x / self._scale[0]
 
     def _scale_y(self, y):
         if y is None:
@@ -419,7 +414,7 @@ class Learner1D(BaseLearner):
         self._update_losses(x, real=False)
 
     def tell_many(self, xs, ys, *, force=False):
-        if not force and not (len(xs) > 0.5 * len(self.data) and len(xs) > 2):
+        if not force and (len(xs) <= 0.5 * len(self.data) or len(xs) <= 2):
             # Only run this more efficient method if there are
             # at least 2 points and the amount of points added are
             # at least half of the number of points already in 'data'.
@@ -526,7 +521,7 @@ class Learner1D(BaseLearner):
             return np.linspace(*self.bounds, n).tolist(), [np.inf] * n
 
         quals = loss_manager(self._scale[0])
-        if len(missing_bounds) > 0:
+        if missing_bounds:
             # There is at least one point in between the bounds.
             all_points = list(self.data.keys()) + list(self.pending_points)
             intervals = [

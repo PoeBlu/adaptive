@@ -29,7 +29,7 @@ def test_balancing_learner_loss_cache():
 @pytest.mark.parametrize("strategy", strategies)
 def test_distribute_first_points_over_learners(strategy):
     for initial_points in [0, 3]:
-        learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for i in range(10)]
+        learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for _ in range(10)]
         learner = BalancingLearner(learners, strategy=strategy)
 
         points = learner.ask(initial_points)[0]
@@ -43,7 +43,7 @@ def test_distribute_first_points_over_learners(strategy):
 
 @pytest.mark.parametrize("strategy", strategies)
 def test_ask_0(strategy):
-    learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for i in range(10)]
+    learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for _ in range(10)]
     learner = BalancingLearner(learners, strategy=strategy)
     points, _ = learner.ask(0)
     assert len(points) == 0
@@ -59,6 +59,6 @@ def test_ask_0(strategy):
     ],
 )
 def test_strategies(strategy, goal):
-    learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for i in range(10)]
+    learners = [Learner1D(lambda x: x, bounds=(-1, 1)) for _ in range(10)]
     learner = BalancingLearner(learners, strategy=strategy)
     simple(learner, goal=goal)

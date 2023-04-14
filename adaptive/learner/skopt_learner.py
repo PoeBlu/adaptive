@@ -51,12 +51,11 @@ class SKOptLearner(Optimizer, BaseLearner):
     def loss(self, real=True):
         if not self.models:
             return np.inf
-        else:
-            model = self.models[-1]
-            # Return the in-sample error (i.e. test the model
-            # with the training data). This is not the best
-            # estimator of loss, but it is the cheapest.
-            return 1 - model.score(self.Xi, self.yi)
+        model = self.models[-1]
+        # Return the in-sample error (i.e. test the model
+        # with the training data). This is not the best
+        # estimator of loss, but it is the cheapest.
+        return 1 - model.score(self.Xi, self.yi)
 
     def ask(self, n, tell_pending=True):
         if not tell_pending:

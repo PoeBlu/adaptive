@@ -69,8 +69,7 @@ def areas(ip):
     """
     p = ip.tri.points[ip.tri.vertices]
     q = p[:, :-1, :] - p[:, -1, None, :]
-    areas = abs(q[:, 0, 0] * q[:, 1, 1] - q[:, 0, 1] * q[:, 1, 0]) / 2
-    return areas
+    return abs(q[:, 0, 0] * q[:, 1, 1] - q[:, 0, 1] * q[:, 1, 0]) / 2
 
 
 def uniform_loss(ip):
@@ -205,8 +204,7 @@ def default_loss(ip):
     """
     dev = np.sum(deviations(ip), axis=0)
     A = areas(ip)
-    losses = dev * np.sqrt(A) + 0.3 * A
-    return losses
+    return dev * np.sqrt(A) + 0.3 * A
 
 
 def choose_point_in_triangle(triangle, max_badness):
@@ -239,11 +237,11 @@ def choose_point_in_triangle(triangle, max_badness):
 
     # We multiply by sqrt(3) / 4 such that a equilateral triangle has badness=1
     badness = (edge_lengths[i] ** 2 / area) * (sqrt(3) / 4)
-    if badness > max_badness:
-        point = (triangle_roll[i] + triangle[i]) / 2
-    else:
-        point = triangle.mean(axis=0)
-    return point
+    return (
+        (triangle_roll[i] + triangle[i]) / 2
+        if badness > max_badness
+        else triangle.mean(axis=0)
+    )
 
 
 def triangle_loss(ip):
@@ -557,7 +555,7 @@ class Learner2D(BaseLearner):
 
         points_new = []
         losses_new = []
-        for j, _ in enumerate(losses):
+        for _ in losses:
             jsimplex = np.argmax(losses)
             triangle = ip.tri.points[ip.tri.vertices[jsimplex]]
             point_new = choose_point_in_triangle(triangle, max_badness=5)

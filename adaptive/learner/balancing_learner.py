@@ -92,7 +92,7 @@ class BalancingLearner(BaseLearner):
     def data(self):
         data = {}
         for i, l in enumerate(self.learners):
-            data.update({(i, p): v for p, v in l.data.items()})
+            data |= {(i, p): v for p, v in l.data.items()}
         return data
 
     @property
@@ -211,10 +211,9 @@ class BalancingLearner(BaseLearner):
         if n == 0:
             return [], []
 
-        if not tell_pending:
-            with restore(*self.learners):
-                return self._ask_and_tell(n)
-        else:
+        if tell_pending:
+            return self._ask_and_tell(n)
+        with restore(*self.learners):
             return self._ask_and_tell(n)
 
     def tell(self, x, y):
@@ -313,11 +312,10 @@ class BalancingLearner(BaseLearner):
             # XXX: change when https://github.com/pyviz/holoviews/issues/3637
             # is fixed.
             return dm.map(lambda obj: obj.opts(framewise=True), hv.Element)
-        else:
-            # XXX: change when https://github.com/ioam/holoviews/issues/3085
-            # is fixed.
-            vals = {d.name: d.values for d in dm.dimensions() if d.values}
-            return hv.HoloMap(dm.select(**vals))
+        # XXX: change when https://github.com/ioam/holoviews/issues/3085
+        # is fixed.
+        vals = {d.name: d.values for d in dm.dimensions() if d.values}
+        return hv.HoloMap(dm.select(**vals))
 
     def remove_unfinished(self):
         """Remove uncomputed data from the learners."""

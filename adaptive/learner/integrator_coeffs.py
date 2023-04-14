@@ -134,8 +134,9 @@ def calc_bdef(ns):
 
 def calc_V(x, n):
     V = [np.ones(x.shape), x.copy()]
-    for i in range(2, n):
-        V.append((2 * i - 1) / i * x * V[-1] - (i - 1) / i * V[-2])
+    V.extend(
+        (2 * i - 1) / i * x * V[-1] - (i - 1) / i * V[-2] for i in range(2, n)
+    )
     for i in range(n):
         V[i] *= np.sqrt(i + 0.5)
     return np.array(V).T
